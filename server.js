@@ -8,7 +8,9 @@ app.listen(PORT, "127.0.0.1");
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 const DB = process.env.DB_CONNECTION;
+
 const userRoutes = require("./routes/user");
+const gameSessionRoutes = require("./routes/gameSession.js");
 
 mongoose
   .connect(DB, {
@@ -21,4 +23,6 @@ mongoose
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
+
 app.use("/user", userRoutes);
+app.use("/game-session", gameSessionRoutes);
