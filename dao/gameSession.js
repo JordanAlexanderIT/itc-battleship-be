@@ -5,6 +5,7 @@ async function createGameSession(creatorUserId, creatorDisplayName) {
   try {
     const gameSessionData = {
       _id: new mongoose.Types.ObjectId(),
+      creatorUserId: creatorUserId,
       players: [{ id: creatorUserId, displayName: creatorDisplayName }],
     };
 
