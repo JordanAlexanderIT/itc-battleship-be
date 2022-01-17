@@ -30,6 +30,15 @@ async function getGameSessionById(id) {
     return { error };
   }
 }
+async function getAllGameSessions() {
+  try {
+    const gameSession = await GameSession.find();
+    return gameSession;
+  } catch (error) {
+    console.log(error);
+    return { error };
+  }
+}
 async function deleteGameSessionById(id) {
   try {
     await GameSession.deleteOne({ _id: id });
@@ -41,5 +50,6 @@ async function deleteGameSessionById(id) {
 module.exports = {
   createGameSession,
   getGameSessionById,
+  getAllGameSessions,
   deleteGameSessionById,
 };
