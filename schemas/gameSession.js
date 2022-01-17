@@ -1,9 +1,5 @@
 const mongoose = require("mongoose");
-
-const gameSessionStates = {
-  waitingForPlayers: "waiting for players",
-  inProgress: "in progress",
-};
+const gameSessionStates = require("../features/gameSession/gameSessionStates.js");
 
 const gameSessionSchema = mongoose.Schema({
   _id: mongoose.Schema.Types.ObjectId,
@@ -15,6 +11,7 @@ const gameSessionSchema = mongoose.Schema({
     default: gameSessionStates.waitingForPlayers,
   },
   players: [],
+  expirationDate: Date,
 });
 
 module.exports = mongoose.model(
