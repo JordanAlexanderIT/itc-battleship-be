@@ -5,8 +5,10 @@ const {
 } = require("../../dao/gameSession.js");
 const { calculateTimeInMS } = require("./calculateTime.js");
 
-const waitingForPlayersStateDurationMS = calculateTimeInMS(0, 10);
+const waitingForPlayersStateDurationMS = calculateTimeInMS(5, 0);
+const inProgressStateDurationMS = calculateTimeInMS(30, 0);
 
+const gameSessionIdsToTimers = {};
 function setGameSessionExpirationTimeout(sessionId, ms, expirationConditionCB) {
   setTimeout(async () => {
     const gameSession = await getGameSessionById(sessionId);
@@ -15,15 +17,24 @@ function setGameSessionExpirationTimeout(sessionId, ms, expirationConditionCB) {
 }
 async function runGameSessionExpirationTimer(sessionId) {
   const gameSession = await getGameSessionById(sessionId);
+  if (!gameSession) return;
   const ms = gameSession.expirationDate - Date.now();
   if (ms <= 0) {
     deleteGameSessionById(sessionId);
+    delete gameSessionIdsToTimers[sessionId];
     return;
   }
 
-  setTimeout(async () => {
+  const timeoutId = setTimeout(async () => {
     runGameSessionExpirationTimer(sessionId);
   }, ms);
+  gameSessionIdsToTimers[sessionId] = timeoutId;
+}
+async function refreshGameSessionExpirationTimer(sessionId) {
+  if (gameSessionIdsToTimers[sessionId]) {
+    clearTimeout(gameSessionIdsToTimers[sessionId]);
+  }
+  runGameSessionExpirationTimer(sessionId);
 }
 async function runAllGameSessionsExpirationTimer() {
   const gameSessions = await getAllGameSessions();
@@ -36,5 +47,7 @@ runAllGameSessionsExpirationTimer();
 module.exports = {
   setGameSessionExpirationTimeout,
   runGameSessionExpirationTimer,
+  refreshGameSessionExpirationTimer,
   waitingForPlayersStateDurationMS,
+  inProgressStateDurationMS,
 };
