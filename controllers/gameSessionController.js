@@ -35,13 +35,15 @@ async function createGameSessionController(req, res) {
     .json({ id: gameSession._id, state: gameSession.state });
 }
 async function joinGameSessionController(req, res) {
-  const displayName = req.body.displayName ? req.body.displayName : "Anon";
+  const joiningUser = await getUserById(req.body.userId);
 
   const sessionId = req.params.sessionId;
-  const joinGameSessionResponse = await joinGameSession(sessionId, displayName);
-  if (joinGameSessionResponse.error)
-    return res.status(400).json(joinGameSessionResponse.error.message);
-  const { gameSession, joiningPlayer } = joinGameSessionResponse;
+  const gameSession = await joinGameSession(
+    sessionId,
+    joiningUser._id,
+    joiningUser.displayName
+  );
+  if (gameSession.error) return res.status(400).json(gameSession.error.message);
 
   const sessionExpireDate = Date.now() + inProgressStateDurationMS;
   await updateGameSessionExpirationDate(sessionId, sessionExpireDate);
@@ -50,7 +52,6 @@ async function joinGameSessionController(req, res) {
   const players = gameSession.players.map((player) => player.displayName);
   return res.status(200).json({
     id: gameSession._id,
-    playerId: joiningPlayer.id,
     players,
     state: gameSession.state,
   });

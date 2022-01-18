@@ -55,7 +55,7 @@ async function deleteGameSessionById(id) {
     return { error };
   }
 }
-async function joinGameSession(id, joiningPlayerDisplayName) {
+async function joinGameSession(id, joiningUserId, joiningUserDisplayName) {
   const playersNeededToStartGame = 2;
   if (!mongoose.isValidObjectId(id))
     return { error: new Error("Invalid session id") };
@@ -71,8 +71,8 @@ async function joinGameSession(id, joiningPlayerDisplayName) {
                 "$players",
                 [
                   {
-                    id: new mongoose.Types.ObjectId(),
-                    displayName: joiningPlayerDisplayName,
+                    id: joiningUserId,
+                    displayName: joiningUserDisplayName,
                   },
                 ],
               ],
@@ -95,8 +95,7 @@ async function joinGameSession(id, joiningPlayerDisplayName) {
     );
     if (!gameSession) return { error: new Error("Invalid session id") };
 
-    const joiningPlayer = gameSession.players[gameSession.players.length - 1];
-    return { joiningPlayer, gameSession };
+    return gameSession;
   } catch (error) {
     console.log(error);
     return { error };

@@ -10,6 +10,7 @@ router.post(
 );
 router.post(
   "/:sessionId/join/",
+  authToken,
   GameSessionController.joinGameSessionController
 );
 router.post(
