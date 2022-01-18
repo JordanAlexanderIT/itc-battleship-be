@@ -3,7 +3,18 @@ const router = express.Router();
 const { authToken } = require("../middleware/checkAuth");
 const GameSessionController = require("../controllers/gameSessionController.js");
 
-router.post("/create",authToken, GameSessionController.createGameSessionController);
-router.post("/:sessionId/join/", GameSessionController.joinGameSessionController);
+router.post(
+  "/create",
+  authToken,
+  GameSessionController.createGameSessionController
+);
+router.post(
+  "/:sessionId/join/",
+  GameSessionController.joinGameSessionController
+);
+router.post(
+  "/:sessionId/",
+  GameSessionController.getPlayerGameSessionController
+);
 
 module.exports = router;

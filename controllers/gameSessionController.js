@@ -2,6 +2,7 @@ const {
   createGameSession,
   joinGameSession,
   updateGameSessionExpirationDate,
+  getGameSessionById,
 } = require("../dao/gameSession.js");
 const { getUserById } = require("../dao/user.js");
 const {
@@ -10,6 +11,7 @@ const {
   inProgressStateDurationMS,
   refreshGameSessionExpirationTimer,
 } = require("../features/gameSession/gameSessionExpiration.js");
+const gameSessionStates = require("../features/gameSession/gameSessionStates.js");
 
 async function createGameSessionController(req, res) {
   console.log("created game session");
@@ -53,8 +55,52 @@ async function joinGameSessionController(req, res) {
     state: gameSession.state,
   });
 }
+async function getPlayerGameSessionController(req, res) {
+  const sessionId = req.params.sessionId;
+  const playerId = req.body.playerId;
+
+  const gameSession = await getGameSessionById(sessionId);
+  if (!gameSession) return res.status(400).json("Invalid session id");
+  if (gameSession.error) return res.status(400).json(gameSession.error.message);
+
+  let playerData;
+  let playerIndex;
+  let otherPlayers = [];
+  for (let i = 0; i < gameSession.players.length; i++) {
+    const player = gameSession.players[i];
+    if (player.id.toString() === playerId) {
+      playerData = player;
+      playerIndex = i;
+      otherPlayers = gameSession.players.splice(i, 0);
+      break;
+    }
+  }
+  if (!playerData) return res.status(400).json("Invalid player id");
+
+  //ToDo Fully Implement gameSessionStates.inProgress state case
+  switch (gameSession.state) {
+    case gameSessionStates.waitingForPlayers:
+      const players = gameSession.players.map((player) => player.displayName);
+      return res.status(200).json({
+        players,
+        playerIndex,
+        state: gameSession.state,
+      });
+      break;
+    case gameSessionStates.inProgress:
+      return res.status(200).json({
+        state: gameSession.state,
+      });
+    default:
+      return res.status(501).json({
+        state: gameSession.state,
+      });
+      break;
+  }
+}
 
 module.exports = {
   createGameSessionController,
   joinGameSessionController,
+  getPlayerGameSessionController,
 };

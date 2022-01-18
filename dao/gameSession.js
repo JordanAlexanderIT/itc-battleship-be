@@ -30,6 +30,14 @@ async function getGameSessionById(id) {
     return { error };
   }
 }
+async function getGameSessionById(id) {
+  try {
+    const gameSession = await GameSession.findOne({ _id: id });
+    return gameSession;
+  } catch (error) {
+    return { error };
+  }
+}
 async function getAllGameSessions() {
   try {
     const gameSession = await GameSession.find();
