@@ -61,8 +61,11 @@ async function joinGameSession(id, joiningUserId, joiningUserDisplayName) {
     return { error: new Error("Invalid session id") };
 
   try {
-    const gameSession = await GameSession.findByIdAndUpdate(
-      id,
+    const gameSession = await GameSession.findOneAndUpdate(
+      {
+        _id: id,
+        $expr: { $lt: [{ $size: "$players" }, playersNeededToStartGame] },
+      },
       [
         {
           $set: {

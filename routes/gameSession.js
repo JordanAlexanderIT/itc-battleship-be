@@ -15,6 +15,7 @@ router.post(
 );
 router.post(
   "/:sessionId/",
+  authToken,
   GameSessionController.getPlayerGameSessionController
 );
 

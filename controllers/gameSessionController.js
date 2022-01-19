@@ -58,7 +58,7 @@ async function joinGameSessionController(req, res) {
 }
 async function getPlayerGameSessionController(req, res) {
   const sessionId = req.params.sessionId;
-  const playerId = req.body.playerId;
+  const userId = req.body.userId;
 
   const gameSession = await getGameSessionById(sessionId);
   if (!gameSession) return res.status(400).json("Invalid session id");
@@ -69,7 +69,7 @@ async function getPlayerGameSessionController(req, res) {
   let otherPlayers = [];
   for (let i = 0; i < gameSession.players.length; i++) {
     const player = gameSession.players[i];
-    if (player.id.toString() === playerId) {
+    if (player.id.toString() === userId) {
       playerData = player;
       playerIndex = i;
       otherPlayers = gameSession.players.splice(i, 0);
