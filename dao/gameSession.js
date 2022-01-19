@@ -104,6 +104,32 @@ async function joinGameSession(id, joiningUserId, joiningUserDisplayName) {
     return { error };
   }
 }
+async function updatePlayerFieldInGameSession(id, playerId, playerField) {
+  try {
+    const gameSession = await GameSession.findOneAndUpdate(
+      { _id: id },
+      { $set: { "players.$[player].field": playerField } },
+      { arrayFilters: [{ "player.id": { $eq: playerId } }], new: true }
+    );
+    return gameSession;
+  } catch (error) {
+    console.log(error);
+    return { error };
+  }
+}
+async function updateAllPlayerFieldInGameSession(id, playerField) {
+  try {
+    const gameSession = await GameSession.findOneAndUpdate(
+      { _id: id },
+      { $set: { "players.$[].field": playerField } },
+      { new: true }
+    );
+    return gameSession;
+  } catch (error) {
+    console.log(error);
+    return { error };
+  }
+}
 async function updateGameSessionExpirationDate(id, expirationDate) {
   try {
     await GameSession.findByIdAndUpdate(id, { expirationDate });
@@ -120,4 +146,6 @@ module.exports = {
   deleteGameSessionById,
   joinGameSession,
   updateGameSessionExpirationDate,
+  updatePlayerFieldInGameSession,
+  updateAllPlayerFieldInGameSession,
 };

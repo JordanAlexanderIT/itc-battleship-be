@@ -3,6 +3,7 @@ const {
   joinGameSession,
   updateGameSessionExpirationDate,
   getGameSessionById,
+  updateAllPlayerFieldInGameSession,
 } = require("../dao/gameSession.js");
 const { getUserById } = require("../dao/user.js");
 const {
@@ -12,6 +13,7 @@ const {
   refreshGameSessionExpirationTimer,
 } = require("../features/gameSession/gameSessionExpiration.js");
 const gameSessionStates = require("../features/gameSession/gameSessionStates.js");
+const { createPlayerField } = require("../features/gameSession/playerField.js");
 
 async function createGameSessionController(req, res) {
   console.log("created game session");
@@ -49,6 +51,8 @@ async function joinGameSessionController(req, res) {
   await updateGameSessionExpirationDate(sessionId, sessionExpireDate);
   refreshGameSessionExpirationTimer(sessionId);
 
+  await updateAllPlayerFieldInGameSession(sessionId, createPlayerField());
+
   const players = gameSession.players.map((player) => player.displayName);
   return res.status(200).json({
     id: gameSession._id,
@@ -56,6 +60,7 @@ async function joinGameSessionController(req, res) {
     state: gameSession.state,
   });
 }
+
 async function getPlayerGameSessionController(req, res) {
   const sessionId = req.params.sessionId;
   const userId = req.body.userId;
