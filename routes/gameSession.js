@@ -3,6 +3,8 @@ const router = express.Router();
 const { authToken } = require("../middleware/checkAuth");
 const GameSessionController = require("../controllers/gameSessionController.js");
 
+const shipPlacementRoutes = require("./shipPlacement.js");
+
 router.post(
   "/create",
   authToken,
@@ -18,5 +20,7 @@ router.post(
   authToken,
   GameSessionController.getPlayerGameSessionController
 );
+
+router.use("/:sessionId/ship-placement", shipPlacementRoutes);
 
 module.exports = router;
