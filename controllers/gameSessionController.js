@@ -93,6 +93,10 @@ async function getPlayerGameSessionController(req, res) {
         state: gameSession.state,
       });
       break;
+    case gameSessionStates.shipPlacement:
+      return res.status(200).json({
+        state: gameSession.state,
+      });
     case gameSessionStates.inProgress:
       return res.status(200).json({
         state: gameSession.state,
