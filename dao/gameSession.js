@@ -87,7 +87,7 @@ async function joinGameSession(id, joiningUserId, joiningUserDisplayName) {
             state: {
               $cond: {
                 if: { $eq: [{ $size: "$players" }, playersNeededToStartGame] },
-                then: gameSessionStates.inProgress,
+                then: gameSessionStates.shipPlacement,
                 else: "$state",
               },
             },
@@ -105,11 +105,12 @@ async function joinGameSession(id, joiningUserId, joiningUserDisplayName) {
   }
 }
 async function updatePlayerFieldInGameSession(id, playerId, playerField) {
+  const playerObjectId = mongoose.Types.ObjectId(playerId);
   try {
     const gameSession = await GameSession.findOneAndUpdate(
       { _id: id },
       { $set: { "players.$[player].field": playerField } },
-      { arrayFilters: [{ "player.id": { $eq: playerId } }], new: true }
+      { arrayFilters: [{ "player.id": { $eq: playerObjectId } }], new: true }
     );
     return gameSession;
   } catch (error) {

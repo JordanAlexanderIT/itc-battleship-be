@@ -30,16 +30,20 @@ function placeShipsRandomly(field) {
       startingPosition,
       field
     );
-    if (!isPlacementLegal) continue;
+    if (!isPlacementLegal.success) continue;
     ships.pop();
     placeShip(ship, startingPosition, field);
-
-    // field[0][0] = 1;
   }
 
   return field;
 }
 function checkOutOfBounds(ship, startingPosition, fieldSize) {
+  if (startingPosition.x >= fieldSize || startingPosition.x < 0) {
+    return true;
+  }
+  if (startingPosition.y >= fieldSize || startingPosition.y < 0) {
+    return true;
+  }
   if (ship.isHorizontal) {
     if (fieldSize < startingPosition.x + ship.size) return true;
     return false;
@@ -50,7 +54,11 @@ function checkOutOfBounds(ship, startingPosition, fieldSize) {
 }
 function checkPlacementLegality(ship, startingPosition, field) {
   const isOutOfBounds = checkOutOfBounds(ship, startingPosition, field.length);
-  if (isOutOfBounds) return false;
+  if (isOutOfBounds)
+    return {
+      success: false,
+      message: `ship position [${startingPosition.x},${startingPosition.y}] is out of field bounds`,
+    };
 
   for (let i = 0; i < ship.size; i++) {
     let elementInField;
@@ -59,9 +67,10 @@ function checkPlacementLegality(ship, startingPosition, field) {
     } else {
       elementInField = field[startingPosition.x][startingPosition.y + i];
     }
-    if (elementInField !== 0) return false;
+    if (elementInField !== 0)
+      return { success: false, message: `Can't put a ship on another ship` };
   }
-  return true;
+  return { success: true, message: undefined };
 }
 function placeShip(ship, startingPosition, field) {
   for (let i = 0; i < ship.size; i++) {
@@ -72,9 +81,14 @@ function placeShip(ship, startingPosition, field) {
   return true;
 }
 function tryPlaceShip(ship, startingPosition, field) {
-  if (!checkPlacementLegality(ship, startingPosition, field)) return false;
+  const placementLegalityResponse = checkPlacementLegality(
+    ship,
+    startingPosition,
+    field
+  );
+  if (!placementLegalityResponse.success) return placementLegalityResponse;
 
   placeShip(ship, startingPosition, field);
-  return true;
+  return { success: true, message: undefined };
 }
 module.exports = { placeShipsRandomly, tryPlaceShip };
